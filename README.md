@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Team EraMaks Workspace
+# Team Yerassyl and Maksat
 ### *Yerassyl & Maksat's Collaborative Repository*
 
 [![GitHub Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge&logo=github)](https://github.com/maji0nezz/team-EraMaks)
