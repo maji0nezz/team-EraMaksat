@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Pro Players — Топ киберспортсмены</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #090d16 60%);
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .top-bar {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .back-btn:hover {
+            border-color: #f59e0b;
+            color: #f59e0b;
+            transform: translateX(-3px);
+        }
+        .badge-cs {
+            background: linear-gradient(90deg, #f59e0b, #ea580c);
+            color: #090d16;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            max-width: 700px;
+        }
+        h1 {
+            font-size: 2.6rem;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        header p {
+            color: #94a3b8;
+            font-size: 1.05rem;
+        }
+        /* Фильтры по командам */
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+        .filter-btn {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #f59e0b;
+            color: #090d16;
+            border-color: #f59e0b;
+        }
+        /* Сетка карточек */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 1100px;
+        }
+        .player-card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .player-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+        .team-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+        /* Цвета команд */
+        .team-spirit { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .team-falcons { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .team-furia { background: rgba(255, 255, 255, 0.15); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.3); }
+        .team-mouz { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .team-other { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .nickname {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .real-name {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+        }
+        .stats span strong {
+            color: #f59e0b;
+            display: block;
+            font-size: 1rem;
+        }
+        .desc {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        footer {
+            margin-top: 50px;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">← На главную</a>
+        <span class="badge-cs">COUNTER-STRIKE 2</span>
+    </div>
+
+    <header>
+        <h1>Мои любимые про-игроки</h1>
+        <p>Подборка лучших киберспортсменов тир-1 сцены CS2: агрессивные рифлеры, снайперы и капитаны</p>
+    </header>
+
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterPlayers('all', this)">Все игроки</button>
+        <button class="filter-btn" onclick="filterPlayers('spirit', this)">Team Spirit</button>
+        <button class="filter-btn" onclick="filterPlayers('falcons', this)">Team Falcons</button>
+        <button class="filter-btn" onclick="filterPlayers('furia', this)">FURIA</button>
+        <button class="filter-btn" onclick="filterPlayers('mouz', this)">MOUZ</button>
+        <button class="filter-btn" onclick="filterPlayers('other', this)">G2 / NAVI / Vitality</button>
+    </div>
+
+    <div class="grid" id="playersGrid">
+        <!-- Team Spirit -->
+        <div class="player-card" data-team="spirit">
+            <span class="team-tag team-spirit">Team Spirit</span>
+            <div class="nickname">donk</div>
+            <div class="real-name">Данил Крышковец • Entry Fragger</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.35</strong></span>
+                <span>Роль<strong>Rifler</strong></span>
+            </div>
+            <p class="desc">Главный феномен CS2. Невероятная агрессия, феноменальный аим и рекордные показатели на мейджорах и IEM Katowice.</p>
+        </div>
+
+        <div class="player-card" data-team="spirit">
+            <span class="team-tag team-spirit">Team Spirit</span>
+            <div class="nickname">sh1ro</div>
+            <div class="real-name">Дмитрий Соколов • AWPer</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.21</strong></span>
+                <span>Роль<strong>Sniper</strong></span>
+            </div>
+            <p class="desc">Один из самых стабильных снайперов мира и король клатчей 1vX с минимальным количеством смертей за раунд.</p>
+        </div>
+
+        <!-- Team Falcons -->
+        <div class="player-card" data-team="falcons">
+            <span class="team-tag team-falcons">Team Falcons</span>
+            <div class="nickname">NiKo</div>
+            <div class="real-name">Никола Ковач • Star Rifler</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.19</strong></span>
+                <span>Роль<strong>Rifler</strong></span>
+            </div>
+            <p class="desc">Легенда Desert Eagle и эталон механического скилла на тир-1 сцене на протяжении многих лет.</p>
+        </div>
+
+        <div class="player-card" data-team="falcons">
+            <span class="team-tag team-falcons">Team Falcons</span>
+            <div class="nickname">m0NESY</div>
+            <div class="real-name">Илья Осипов • AWPer</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.28</strong></span>
+                <span>Роль<strong>Sniper</strong></span>
+            </div>
+            <p class="desc">Молниеносная реакция с AWP, безумные флики и знание фишек на каждой карте.</p>
+        </div>
+
+        <!-- FURIA -->
+        <div class="player-card" data-team="furia">
+            <span class="team-tag team-furia">FURIA Esports</span>
+            <div class="nickname">KSCERATO</div>
+            <div class="real-name">Кайке Серато • Lurker</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.18</strong></span>
+                <span>Роль<strong>Rifler</strong></span>
+            </div>
+            <p class="desc">Главный оплот бразильского CS. Железная выдержка, идеальный спрей-контроль и топовые клатчи.</p>
+        </div>
+
+        <div class="player-card" data-team="furia">
+            <span class="team-tag team-furia">FURIA Esports</span>
+            <div class="nickname">FalleN</div>
+            <div class="real-name">Габриэль Толедо • IGL / AWPer</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.03</strong></span>
+                <span>Роль<strong>Captain</strong></span>
+            </div>
+            <p class="desc">«Профессор» и живая легенда бразильской сцены, двукратный чемпион мейджоров.</p>
+        </div>
+
+        <!-- MOUZ -->
+        <div class="player-card" data-team="mouz">
+            <span class="team-tag team-mouz">MOUZ</span>
+            <div class="nickname">Jimpphat</div>
+            <div class="real-name">Джими Сало • Anchor</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.16</strong></span>
+                <span>Роль<strong>Support / Anchor</strong></span>
+            </div>
+            <p class="desc">Один из лучших опорников в мире. Способен в одиночку закрыть выход на плент против всей команды соперника.</p>
+        </div>
+
+        <div class="player-card" data-team="mouz">
+            <span class="team-tag team-mouz">MOUZ</span>
+            <div class="nickname">torzsi</div>
+            <div class="real-name">Адам Торжаш • AWPer</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.14</strong></span>
+                <span>Роль<strong>Sniper</strong></span>
+            </div>
+            <p class="desc">Агрессивный венгерский снайпер, задающий темп атакам и обороне «мышек».</p>
+        </div>
+
+        <!-- Другие топ-игроки -->
+        <div class="player-card" data-team="other">
+            <span class="team-tag team-other">Team Vitality</span>
+            <div class="nickname">ZywOo</div>
+            <div class="real-name">Матье Эрбо • Hybrid</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.33</strong></span>
+                <span>Роль<strong>AWP / Rifler</strong></span>
+            </div>
+            <p class="desc">Многократный топ-1 мира по версии HLTV, одинаково смертоносный как с AWP, так и с винтовками.</p>
+        </div>
+
+        <div class="player-card" data-team="other">
+            <span class="team-tag team-other">NAVI</span>
+            <div class="nickname">b1t</div>
+            <div class="real-name">Валерий Ваховский • Rifler</div>
+            <div class="stats">
+                <span>Рейтинг 2.1<strong>1.15</strong></span>
+                <span>Роль<strong>Headshot Machine</strong></span>
+            </div>
+            <p class="desc">Обладатель самого высокого процента хедшотов на про-сцене и двукратный чемпион мейджоров.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>Страница участника: Ерасыл • CS2 Pro Roster 2026</p>
+    </footer>
+
+    <script>
+        function filterPlayers(team, btn) {
+            // Обновляем активную кнопку
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Фильтруем карточки
+            const cards = document.querySelectorAll('.player-card');
+            cards.forEach(card => {
+                if (team === 'all' || card.getAttribute('data-team') === team) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
