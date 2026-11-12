@@ -3,8 +3,8 @@
 # Team Yerassyl and Maksat
 ### *Yerassyl men Maksattyn birlesken repozitoriyi*
 
-[![GitHub Status](https://github.com/maji0nezz)
-[![GitHub Status](https://github.com/shadibekov)
+[![GitHub Yerassyl](https://github.com/maji0nezz)
+[![GitHub Maksat](https://github.com/shadibekov)
 
 </div>
 
