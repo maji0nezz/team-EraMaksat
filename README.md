@@ -1,41 +1,41 @@
 <div align="center">
 
 # Team Yerassyl and Maksat
-### *Yerassyl & Maksat's Collaborative Repository*
+### *Ерасыл мен Мақсаттың бірлескен репозиторийі*
 
-[![GitHub Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge&logo=github)](https://github.com/maji0nezz/team-EraMaks)
+[![GitHub Status](https://img.shields.io/badge/Status-Белсенді-success?style=for-the-badge&logo=github)](https://github.com/maji0nezz/team-EraMaks)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 
 </div>
 
 ---
 
-## 👥 Team Members
+## 👥 Топ мүшелері
 
-| Developer | Role & Contributions | Favorite Hero Page |
+| Әзірлеуші | Ролі мен үлесі | Сүйікті кейіпкер беті |
 | :--- | :--- | :--- |
-| **Yerassyl** | Core Developer & Feature Implementer | [View Hero 🦸‍♂️](yerkimbek-favorite-hero.html) |
-| **Maksat** | Co-Developer & Project Contributor | [View Hero 🦸‍♂️](maksat-favorite-hero.html) |
+| **Ерасыл** | Негізгі әзірлеуші және функционалды жүзеге асырушы | [Көру 🦸‍♂️](yerkimbek-favorite-hero.html) |
+| **Мақсат** | Қосалқы әзірлеуші және жоба қатысушысы | [Көру 🦸‍♂️](maksat-favorite-hero.html) |
 
 ---
 
-## 📂 Project Structure & Files
+## 📂 Жоба құрылымы мен файлдар
 
 Бұл репозиторийде келесі негізгі файлдар мен беттер бар:
 
-* **🌐 [Main Index Page](index.html)** — Жобаның негізгі веб-беті.
-* **📄 [Feature A](feature-a.txt)** — Бірінші мүмкіндік/тапсырма файлы.
-* **📄 [Feature B](feature-b.txt)** — Екінші мүмкіндік/тапсырма файлы.
+- **🌐 [Негізгі бет (Index)](index.html)** — Жобаның басты веб-беті.
+- **📄 [А мүмкіндігі (Feature A)](feature-a.txt)** — Бірінші тапсырма немесе мүмкіндік файлы.
+- **📄 [В мүмкіндігі (Feature B)](feature-b.txt)** — Екінші тапсырма немесе мүмкіндік файлы.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Технологиялар стекі
 
-* **Markup & Web:** HTML5, CSS
-* **Version Control:** Git & GitHub
+- **Маркап және Веб:** HTML5, CSS
+- **Нұсқаларды басқару:** Git & GitHub
 
 ---
 
 <div align="center">
-  <i>Made with 💻 by Yerassyl & Maksat</i>
+  <i>Ерасыл мен Мақсат тарапынан 💻 жасалды</i>
 </div>
