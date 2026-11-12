@@ -1,41 +1,41 @@
 <div align="center">
 
 # Team Yerassyl and Maksat
-### *Ерасыл мен Мақсаттың бірлескен репозиторийі*
+### *Yerassyl men Maksattyn birlesken repozitoriyi*
 
-[![GitHub Status](https://img.shields.io/badge/Status-Белсенді-success?style=for-the-badge&logo=github)](https://github.com/maji0nezz/team-EraMaks)
+[![GitHub Status](https://img.shields.io/badge/Status-Belsendi-success?style=for-the-badge&logo=github)](https://github.com/maji0nezz/team-EraMaks)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](index.html)
 
 </div>
 
 ---
 
-## 👥 Топ мүшелері
+## 👥 Top musheleri
 
-| Әзірлеуші | Ролі мен үлесі | Сүйікті кейіпкер беті |
+| Azirleushi | Roli men ulesi | Suyikti keipker beti |
 | :--- | :--- | :--- |
-| **Ерасыл** | Негізгі әзірлеуші және функционалды жүзеге асырушы | [Көру 🦸‍♂️](yerkimbek-favorite-hero.html) |
-| **Мақсат** | Қосалқы әзірлеуші және жоба қатысушысы | [Көру 🦸‍♂️](maksat-favorite-hero.html) |
+| **Yerassyl** | Negizgi azirleushi jane funksionaldy guzege asyruchy | [Koru 🦸‍♂️](yerkimbek-favorite-hero.html) |
+| **Maksat** | Qosalqy azirleushi jane gozoba qatysushysy | [Koru 🦸‍♂️](maksat-favorite-hero.html) |
 
 ---
 
-## 📂 Жоба құрылымы мен файлдар
+## 📂 Joba qurylymy men failyar
 
-Бұл репозиторийде келесі негізгі файлдар мен беттер бар:
+Bul repozitoriyde kelesi negizgi failyar men better bar:
 
-- **🌐 [Негізгі бет (Index)](index.html)** — Жобаның басты веб-беті.
-- **📄 [А мүмкіндігі (Feature A)](feature-a.txt)** — Бірінші тапсырма немесе мүмкіндік файлы.
-- **📄 [В мүмкіндігі (Feature B)](feature-b.txt)** — Екінші тапсырма немесе мүмкіндік файлы.
+- **🌐 [Negizgi bet (Index)](index.html)** — Gobanyng basty web-beti.
+- **📄 [A mumkindigi (Feature A)](feature-a.txt)** — Birinshi tapsyrma nemese mumkindik faily.
+- **📄 [B mumkindigi (Feature B)](feature-b.txt)** — Ekinshi tapsyrma nemese mumkindik faily.
 
 ---
 
-## 🛠️ Технологиялар стекі
+## 🛠️ Tehnalogiyalar stekti
 
-- **Маркап және Веб:** HTML5, CSS
-- **Нұсқаларды басқару:** Git & GitHub
+- **Markup jane Web:** HTML5, CSS
+- ** Nusqalardy basqaru:** Git & GitHub
 
 ---
 
 <div align="center">
-  <i>Ерасыл мен Мақсат тарапынан 💻 жасалды</i>
+  <i>Yerassyl men Maksat tarapynan 💻 gasaldy</i>
 </div>
