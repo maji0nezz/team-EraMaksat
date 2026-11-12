@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARVEL ARCHIVE — База данных героев Вселенной</title>
+    <!-- Подключение Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение шрифтов Google Fonts (Inter и Oswald для комикс-заголовков) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    },
+                    colors: {
+                        marvel: {
+                            red: '#ED1D24',
+                            dark: '#0B0C10',
+                            card: '#13151C',
+                            gold: '#F5B82E',
+                            border: '#232734'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#08090D] text-gray-100 font-sans antialiased min-h-screen flex flex-col selection:bg-[#ED1D24] selection:text-white overflow-x-hidden">
+
+    <!-- Декоративный фоновый градиент -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-[#ED1D24]/15 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/3 -right-40 w-96 h-96 bg-[#F5B82E]/10 rounded-full blur-[130px]"></div>
+        <div class="absolute bottom-0 left-1/4 w-[500px] h-64 bg-blue-600/10 rounded-full blur-[140px]"></div>
+    </div>
+
+    <!-- Шапка сайта (Header) -->
+    <header class="sticky top-0 z-40 bg-[#0B0C10]/85 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
+                
+                <!-- Логотип и навигация -->
+                <div class="flex items-center justify-between w-full md:w-auto gap-6">
+                    <a href="#" onclick="resetFilters(event)" class="flex items-center gap-3 group focus:outline-none">
+                        <div class="bg-[#ED1D24] px-3 py-1 rounded shadow-[0_0_20px_rgba(237,29,36,0.6)] group-hover:shadow-[0_0_30px_rgba(237,29,36,0.9)] transition-all duration-300 transform group-hover:scale-105">
+                            <span class="font-display text-2xl sm:text-3xl font-bold tracking-tighter text-white uppercase leading-none">MARVEL</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold tracking-[0.25em] text-[#F5B82E] uppercase">S.H.I.E.L.D.</span>
+                            <span class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Архив Героев</span>
+                        </div>
+                    </a>
+
+                    <!-- Счетчик героев на мобильных -->
+                    <div class="md:hidden text-xs font-medium text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                        Найдено: <span id="mobileCount" class="text-white font-bold">12</span>
+                    </div>
+                </div>
+
+                <!-- Строка поиска в реальном времени -->
+                <div class="relative w-full md:w-96 group">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400 group-focus-within:text-[#ED1D24] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Поиск по имени или альтер-эго..." 
+                        class="block w-full pl-11 pr-10 py-2.5 bg-[#13151C] border border-white/15 rounded-xl text-sm text-white placeholder-gray-400 focus:outline-none focus:border-[#ED1D24] focus:ring-2 focus:ring-[#ED1D24]/30 transition-all duration-200"
+                    >
+                    <button 
+                        id="clearSearchBtn" 
+                        class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
+                        title="Очистить поиск"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Навигация / Статус базы (Десктоп) -->
+                <nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
+                    <a href="#catalog" class="text-white hover:text-[#ED1D24] transition-colors">Каталог</a>
+                    <button onclick="openRandomHero()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#F5B82E]/50 text-gray-200 hover:text-[#F5B82E] transition-all duration-200">
+                        <svg class="w-4 h-4 text-[#F5B82E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>Случайное досье</span>
+                    </button>
+                </nav>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Главный баннер / Интро -->
+    <section class="relative z-10 pt-8 pb-6 sm:pt-12 sm:pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-white/10 pb-8">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ED1D24]/15 border border-[#ED1D24]/30 text-[#ED1D24] text-xs font-semibold tracking-wider uppercase mb-3">
+                    <span class="w-2 h-2 rounded-full bg-[#ED1D24] animate-pulse"></span>
+                    Секретный доступ • Уровень 10
+                </div>
+                <h1 class="font-display text-3xl sm:text-5xl font-bold tracking-tight text-white uppercase">
+                    Энциклопедия Героев <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#ED1D24] via-red-500 to-[#F5B82E]">Marvel</span>
+                </h1>
+                <p class="mt-2 text-gray-400 text-sm sm:text-base max-w-2xl">
+                    Изучите досье величайших защитников Земли и космоса. Фильтруйте персонажей по командам, анализируйте их боевые показатели и открывайте полные архивные сводки.
+                </p>
+            </div>
+
+            <!-- Индикатор найденных карточек (Десктоп) -->
+            <div class="hidden md:flex items-center gap-3 bg-[#13151C] px-4 py-2.5 rounded-xl border border-white/10">
+                <span class="text-xs uppercase tracking-wider text-gray-400">Досье в выборке:</span>
+                <span id="desktopCount" class="font-display text-xl font-bold text-[#F5B82E]">12</span>
+            </div>
+        </div>
+
+        <!-- Панель фильтров по командам -->
+        <div id="catalog" class="mt-6 flex items-center gap-2.5 overflow-x-auto pb-2 no-scrollbar" role="tablist" aria-label="Фильтр команд">
+            <button data-team="all" class="filter-btn active whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#ED1D24] text-white shadow-[0_0_20px_rgba(237,29,36,0.4)] border border-[#ED1D24]">
+                Все герои
+            </button>
+            <button data-team="Мстители" class="filter-btn whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#13151C] text-gray-300 hover:text-white hover:bg-white/10 border border-white/10">
+                Мстители
+            </button>
+            <button data-team="Стражи Галактики" class="filter-btn whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#13151C] text-gray-300 hover:text-white hover:bg-white/10 border border-white/10">
+                Стражи Галактики
+            </button>
+            <button data-team="Люди Икс" class="filter-btn whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#13151C] text-gray-300 hover:text-white hover:bg-white/10 border border-white/10">
+                Люди Икс
+            </button>
+            <button data-team="Уличные герои" class="filter-btn whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#13151C] text-gray-300 hover:text-white hover:bg-white/10 border border-white/10">
+                Уличные герои
+            </button>
+        </div>
+    </section>
+
+    <!-- Сетка карточек героев -->
+    <main class="relative z-10 flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full">
+        <div id="heroesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Карточки генерируются через JavaScript -->
+        </div>
+
+        <!-- Состояние "Ничего не найдено" -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center bg-[#13151C]/60 rounded-2xl border border-white/10 mt-4 px-4">
+            <div class="w-16 h-16 rounded-2xl bg-[#ED1D24]/15 border border-[#ED1D24]/30 flex items-center justify-center mb-4 text-[#ED1D24]">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Досье не найдено</h3>
+            <p class="text-gray-400 text-sm max-w-md mb-6">По вашему запросу в базе данных Щ.И.Т. не обнаружено совпадений. Попробуйте изменить поисковый запрос или сбросить фильтры.</p>
+            <button onclick="resetFilters()" class="px-6 py-2.5 rounded-xl bg-[#ED1D24] hover:bg-red-600 text-white text-sm font-semibold transition-all shadow-lg shadow-[#ED1D24]/30">
+                Сбросить все фильтры
+            </button>
+        </div>
+    </main>
+
+    <!-- Модальное окно с подробным досье героя -->
+    <div id="heroModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 overflow-y-auto" aria-labelledby="modalTitle" role="dialog" aria-modal="true">
+        <!-- Затемненный фон (Backdrop) -->
+        <div id="modalBackdrop" class="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity opacity-0 duration-300"></div>
+
+        <!-- Контейнер модального окна -->
+        <div id="modalContent" class="relative z-10 w-full max-w-3xl bg-[#11131A] border border-white/15 rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.9)] overflow-hidden transform scale-95 opacity-0 transition-all duration-300 my-auto">
+            
+            <!-- Кнопка закрытия -->
+            <button id="closeModalBtn" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-[#ED1D24] text-gray-300 hover:text-white flex items-center justify-center border border-white/15 transition-all duration-200 backdrop-blur-md" aria-label="Закрыть окно">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Динамическое содержимое модального окна -->
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Подвал (Footer) -->
+    <footer class="relative z-10 border-t border-white/10 bg-[#0B0C10] py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+            <div class="flex items-center gap-2">
+                <span class="bg-[#ED1D24] text-white font-display font-bold px-2 py-0.5 rounded text-sm">MARVEL</span>
+                <span>Интерактивный каталог персонажей Вселенной Marvel</span>
+            </div>
+            <p>Данные подготовлены для ознакомления. Все персонажи принадлежат Marvel Entertainment.</p>
+        </div>
+    </footer>
+
+    <!-- Логика приложения и база данных персонажей -->
+    <script>
+        /**
+         * База данных популярных героев Вселенной Marvel (12 персонажей)
+         * Каждый герой содержит SVG-эмблему, цветовую палитру, биографию, способности и боевые характеристики.
+         */
+        const HEROES_DATA = [
+            {
+                id: 'iron-man',
+                name: 'Железный Человек',
+                realName: 'Энтони Эдвард «Тони» Старк',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-red-700 via-red-900 to-amber-600',
+                accentColor: '#F5B82E',
+                shortDesc: 'Гений, миллиардер, филантроп в высокотехнологичной боевой броне собственной разработки.',
+                bio: 'Получив тяжелое ранение в плену, гениальный изобретатель Тони Старк создал миниатюрный дуговой реактор и высокотехнологичный экзоскелет. Став Железным Человеком, он основал команду Мстителей и неоднократно спасал Землю от глобальных угроз, постоянно совершенствуя свой арсенал.',
+                firstAppearance: 'Tales of Suspense #39 (Март 1963)',
+                abilities: [
+                    'Сверхзвуковой полет и энергетические репульсоры',
+                    'Гениальный интеллект и кибернетическое управление',
+                    'Нанотехнологическая броня высокой прочности',
+                    'Тактический анализ боя в реальном времени'
+                ],
+                stats: {
+                    strength: 85,
+                    intelligence: 100,
+                    speed: 88,
+                    durability: 85,
+                    combat: 75
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(245,184,46,0.7)]">
+                    <polygon points="50,12 85,32 72,85 28,85 15,32" fill="none" stroke="#F5B82E" stroke-width="4"/>
+                    <polygon points="50,24 73,38 64,75 36,75 27,38" fill="#38BDF8" fill-opacity="0.25" stroke="#38BDF8" stroke-width="3"/>
+                    <circle cx="50" cy="52" r="12" fill="#E0F2FE" stroke="#38BDF8" stroke-width="3"/>
+                </svg>`
+            },
+            {
+                id: 'captain-america',
+                name: 'Капитан Америка',
+                realName: 'Стивен «Стив» Роджерс',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-blue-800 via-indigo-950 to-red-700',
+                accentColor: '#3B82F6',
+                shortDesc: 'Первый мститель, усиленный сывороткой суперсолдата и вооруженный неразрушимым щитом из вибраниума.',
+                bio: 'Хрупкий юноша из Бруклина Стив Роджерс добровольно принял участие в секретном эксперименте «Перерождение». Сыворотка превратила его в эталон человеческих возможностей. Проведя десятилетия во льдах, он вернулся в современный мир, чтобы возглавить Мстителей как символ чести и справедливости.',
+                firstAppearance: 'Captain America Comics #1 (Март 1941)',
+                abilities: [
+                    'Пиковые человеческие сила, ловкость и выносливость',
+                    'Мастерское владение щитом из вибраниума',
+                    'Выдающийся тактик и полевой командир',
+                    'Ускоренная регенерация и иммунитет к болезням'
+                ],
+                stats: {
+                    strength: 75,
+                    intelligence: 78,
+                    speed: 72,
+                    durability: 78,
+                    combat: 100
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(59,130,246,0.7)]">
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#EF4444" stroke-width="6"/>
+                    <circle cx="50" cy="50" r="28" fill="none" stroke="#F8FAFC" stroke-width="6"/>
+                    <circle cx="50" cy="50" r="18" fill="#1D4ED8" stroke="#EF4444" stroke-width="4"/>
+                    <polygon points="50,35 54,46 65,46 56,53 59,64 50,57 41,64 44,53 35,46 46,46" fill="#FFFFFF"/>
+                </svg>`
+            },
+            {
+                id: 'thor',
+                name: 'Тор',
+                realName: 'Тор Одинсон',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-sky-700 via-slate-900 to-amber-500',
+                accentColor: '#38BDF8',
+                shortDesc: 'Асгардский Бог Грома, повелитель молний и владелец легендарного молота Мьёльнира.',
+                bio: 'Сын Одина и наследник трона Асгарда. Изгнанный на Землю за гордыню, Тор научился смирению и полюбил человечество. Обладая божественной мощью и способностью управлять стихией бури, он защищает Девять Миров от космических завоевателей.',
+                firstAppearance: 'Journey into Mystery #83 (Август 1962)',
+                abilities: [
+                    'Управление громом, молниями и штормами',
+                    'Колоссальная асгардская сила и долголетие',
+                    'Полет и телепортация через Биврёст',
+                    'Владение зачарованным Мьёльниром и Громсекирой'
+                ],
+                stats: {
+                    strength: 100,
+                    intelligence: 70,
+                    speed: 92,
+                    durability: 98,
+                    combat: 90
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(56,189,248,0.8)]">
+                    <rect x="26" y="22" width="48" height="28" rx="4" fill="#94A3B8" stroke="#E2E8F0" stroke-width="3"/>
+                    <line x1="50" y1="50" x2="50" y2="86" stroke="#D97706" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M18 36 L34 26 L28 40 L42 32" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M82 36 L66 26 L72 40 L58 32" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: 'spider-man',
+                name: 'Человек-Паук',
+                realName: 'Питер Бенджамин Паркер',
+                team: 'Уличные герои',
+                tags: ['Уличные герои', 'Мстители'],
+                gradient: 'from-red-600 via-rose-900 to-blue-800',
+                accentColor: '#ED1D24',
+                shortDesc: 'Дружелюбный сосед из Квинса с паучьим чутьем, невероятной ловкостью и веб-шутерами.',
+                bio: 'После укуса радиоактивного паука школьник Питер Паркер обрел сверхчеловеческие способности. Усвоив урок «С великой силой приходит великая ответственность», он ежедневно защищает улицы Нью-Йорка, совмещая жизнь ученого и супергероя.',
+                firstAppearance: 'Amazing Fantasy #15 (Август 1962)',
+                abilities: [
+                    'Паучье чутье — предвидение опасности',
+                    'Передвижение по стенам и невероятная акробатика',
+                    'Сверхчеловеческая сила и рефлексы',
+                    'Изобретенные веб-шутеры с синтетической паутиной'
+                ],
+                stats: {
+                    strength: 76,
+                    intelligence: 90,
+                    speed: 86,
+                    durability: 72,
+                    combat: 82
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(237,29,36,0.75)]">
+                    <ellipse cx="50" cy="54" rx="14" ry="18" fill="#111827" stroke="#EF4444" stroke-width="3"/>
+                    <circle cx="50" cy="34" r="8" fill="#111827" stroke="#EF4444" stroke-width="3"/>
+                    <path d="M36 46 Q20 35 16 20 M36 52 Q18 50 14 42 M36 58 Q18 65 16 78 M38 64 Q24 78 24 88" fill="none" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M64 46 Q80 35 84 20 M64 52 Q82 50 86 42 M64 58 Q82 65 84 78 M62 64 Q76 78 76 88" fill="none" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: 'black-widow',
+                name: 'Черная Вдова',
+                realName: 'Наталья Альяновна Романова',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-zinc-800 via-neutral-950 to-red-800',
+                accentColor: '#EF4444',
+                shortDesc: 'Элитный суперагент, мастер шпионажа и рукопашного боя с «Укусом Вдовы».',
+                bio: 'Пройдя суровую подготовку в Красной Комнате, Наташа Романофф стала лучшим шпионом мира. Порвав с прошлым и присоединившись к Щ.И.Т.у и Мстителям, она доказала, что для спасения человечества не нужны сверхспособности — достаточно стальной воли и мастерства.',
+                firstAppearance: 'Tales of Suspense #52 (Апрель 1964)',
+                abilities: [
+                    'Мастерство в десятках боевых искусств',
+                    'Эксперт шпионажа, маскировки и тактики',
+                    'Браслеты с электрошоковыми зарядами «Укус Вдовы»',
+                    'Пиковая акробатика и владение любым оружием'
+                ],
+                stats: {
+                    strength: 45,
+                    intelligence: 82,
+                    speed: 68,
+                    durability: 50,
+                    combat: 96
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">
+                    <circle cx="50" cy="50" r="36" fill="#09090B" stroke="#3F3F46" stroke-width="3"/>
+                    <polygon points="32,26 68,26 50,50 68,74 32,74 50,50" fill="#ED1D24" stroke="#FCA5A5" stroke-width="2"/>
+                </svg>`
+            },
+            {
+                id: 'hulk',
+                name: 'Халк',
+                realName: 'Доктор Роберт Брюс Бэннер',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-emerald-700 via-green-950 to-purple-900',
+                accentColor: '#10B981',
+                shortDesc: 'Гениальный физик-ядерщик, превращающийся в неудержимого титана при вспышках гнева.',
+                bio: 'Спасая подростка во время испытания гамма-бомбы, доктор Брюс Бэннер получил колоссальную дозу радиации. Теперь при выбросе адреналина он трансформируется в Халка — существо с практически безграничной физической силой, растущей пропорционально его ярости.',
+                firstAppearance: 'The Incredible Hulk #1 (Май 1962)',
+                abilities: [
+                    'Потенциально безграничная физическая сила',
+                    'Практически полная неуязвимость и мгновенная регенерация',
+                    'Многокилометровые прыжки и ударные волны',
+                    'Гениальный ум Бэннера в области ядерной физики'
+                ],
+                stats: {
+                    strength: 100,
+                    intelligence: 88,
+                    speed: 75,
+                    durability: 100,
+                    combat: 78
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(16,185,129,0.75)]">
+                    <circle cx="50" cy="50" r="10" fill="#10B981"/>
+                    <path d="M50 35 L32 16 A38 38 0 0 1 68 16 Z" fill="#10B981"/>
+                    <path d="M37 57 L14 64 A38 38 0 0 0 32 84 Z" fill="#10B981"/>
+                    <path d="M63 57 L86 64 A38 38 0 0 1 68 84 Z" fill="#10B981"/>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#34D399" stroke-width="2" stroke-dasharray="6 4"/>
+                </svg>`
+            },
+            {
+                id: 'doctor-strange',
+                name: 'Доктор Стрэндж',
+                realName: 'Доктор Стивен Винсент Стрэндж',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-amber-600 via-indigo-950 to-purple-800',
+                accentColor: '#F59E0B',
+                shortDesc: 'Верховный Чародей Земли, хранитель мистических артефактов и защитник реальности.',
+                bio: 'Блестящий, но высокомерный нейрохирург Стивен Стрэндж потерял способность оперировать после автокатастрофы. В поисках исцеления он отправился в Камар-Тадж, где постиг тайны мистических искусств и стал главным защитником Земли от межпространственных угроз.',
+                firstAppearance: 'Strange Tales #110 (Июль 1963)',
+                abilities: [
+                    'Магия измерений, щиты Серафимов и порталы',
+                    'Астральная проекция и манипуляция временем',
+                    'Плащ Левитации и Око Агамотто',
+                    'Глубочайшие познания в оккультизме и медицине'
+                ],
+                stats: {
+                    strength: 42,
+                    intelligence: 96,
+                    speed: 74,
+                    durability: 65,
+                    combat: 76
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]">
+                    <circle cx="50" cy="50" r="36" fill="none" stroke="#F59E0B" stroke-width="3"/>
+                    <rect x="27" y="27" width="46" height="46" fill="none" stroke="#FBBF24" stroke-width="2.5"/>
+                    <rect x="27" y="27" width="46" height="46" transform="rotate(45 50 50)" fill="none" stroke="#FBBF24" stroke-width="2.5"/>
+                    <circle cx="50" cy="50" r="10" fill="#10B981" stroke="#FDE68A" stroke-width="2"/>
+                </svg>`
+            },
+            {
+                id: 'black-panther',
+                name: 'Черная Пантера',
+                realName: 'Т’Чалла',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-purple-800 via-gray-950 to-indigo-900',
+                accentColor: '#A855F7',
+                shortDesc: 'Король высокотехнологичной Ваканды, обладающий силой Сердцевидной травы и броней из вибраниума.',
+                bio: 'Правитель скрытой от мира африканской державы Ваканда, богатой уникальным металлом вибраниумом. Приняв титул Черной Пантеры после гибели отца, Т’Чалла объединил древние традиции воинов и передовую науку для защиты своего народа и всего мира.',
+                firstAppearance: 'Fantastic Four #52 (Июль 1966)',
+                abilities: [
+                    'Сверхчеловеческие чувства, ловкость и скорость',
+                    'Костюм из вибраниума, поглощающий кинетическую энергию',
+                    'Выдающийся стратег, ученый и дипломат',
+                    'Мастер африканских и мировых боевых стилей'
+                ],
+                stats: {
+                    strength: 74,
+                    intelligence: 92,
+                    speed: 80,
+                    durability: 84,
+                    combat: 95
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]">
+                    <path d="M25 22 L38 35 L62 35 L75 22 L78 58 L50 84 L22 58 Z" fill="#18181B" stroke="#A855F7" stroke-width="3.5"/>
+                    <polygon points="34,48 45,52 36,55" fill="#E9D5FF"/>
+                    <polygon points="66,48 55,52 64,55" fill="#E9D5FF"/>
+                    <path d="M35 70 L50 78 L65 70" fill="none" stroke="#C084FC" stroke-width="3" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: 'scarlet-witch',
+                name: 'Алая Ведьма',
+                realName: 'Ванда Максимофф',
+                team: 'Мстители',
+                tags: ['Мстители'],
+                gradient: 'from-rose-700 via-red-950 to-fuchsia-900',
+                accentColor: '#F43F5E',
+                shortDesc: 'Могущественная чародейка, владеющая Магией Хаоса и способная изменять саму ткань реальности.',
+                bio: 'Пережив трагедии в родной Заковии и эксперименты с Камнем Разума, Ванда Максимофф пробудила в себе колоссальный магический потенциал. Как Алая Ведьма, она способна управлять вероятностями, телекинезом и переписывать законы реальности.',
+                firstAppearance: 'The X-Men #4 (Март 1964)',
+                abilities: [
+                    'Магия Хаоса и искажение реальности',
+                    'Мощнейший телекинез и энергетические сферы',
+                    'Телепатия и манипуляция сознанием',
+                    'Левитация и создание защитных барьеров'
+                ],
+                stats: {
+                    strength: 45,
+                    intelligence: 78,
+                    speed: 76,
+                    durability: 70,
+                    combat: 74
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(244,63,94,0.85)]">
+                    <path d="M22 65 L28 32 L40 48 L50 22 L60 48 L72 32 L78 65 L64 56 L50 66 L36 56 Z" fill="#F43F5E" fill-opacity="0.3" stroke="#FB7185" stroke-width="3.5" stroke-linejoin="round"/>
+                    <circle cx="50" cy="76" r="6" fill="#F43F5E"/>
+                </svg>`
+            },
+            {
+                id: 'wolverine',
+                name: 'Росомаха',
+                realName: 'Джеймс «Логан» Хоулетт',
+                team: 'Люди Икс',
+                tags: ['Люди Икс', 'Мстители'],
+                gradient: 'from-amber-500 via-yellow-900 to-blue-950',
+                accentColor: '#EAB308',
+                shortDesc: 'Мутант с исцеляющим фактором, звериными инстинктами и когтями из неразрушимого адамантия.',
+                bio: 'Прожив более века и пережив болезненный эксперимент «Оружие Икс», Логан обрел скелет и выдвижные когти, покрытые адамантием. Несмотря на суровый нрав, он стал одним из самых преданных защитников Людей Икс и наставником нового поколения мутантов.',
+                firstAppearance: 'The Incredible Hulk #180 (Октябрь 1974)',
+                abilities: [
+                    'Мгновенный исцеляющий фактор и замедленное старение',
+                    'Выдвижные когти и скелет из адамантия',
+                    'Сверхчеловеческие обоняние, слух и инстинкты',
+                    'Мастер рукопашного боя и владелец самурайских техник'
+                ],
+                stats: {
+                    strength: 72,
+                    intelligence: 68,
+                    speed: 70,
+                    durability: 95,
+                    combat: 98
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(234,179,8,0.75)]">
+                    <path d="M28 82 L34 22 L38 82 Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"/>
+                    <path d="M47 84 L50 16 L53 84 Z" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
+                    <path d="M62 82 L66 22 L72 82 Z" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"/>
+                </svg>`
+            },
+            {
+                id: 'star-lord',
+                name: 'Звездный Лорд',
+                realName: 'Питер Джейсон Квилл',
+                team: 'Стражи Галактики',
+                tags: ['Стражи Галактики'],
+                gradient: 'from-red-700 via-purple-950 to-amber-700',
+                accentColor: '#F59E0B',
+                shortDesc: 'Харизматичный лидер Стражей Галактики, космический искатель приключений с плазменными бластерами.',
+                bio: 'Похищенный с Земли в детстве космическими пиратами Опустошителями, Питер Квилл вырос в бесшабашного звездного авантюриста. Объединив команду изгоев в Стражей Галактики, он не раз спасал вселенную под хиты 70-х и 80-х со своего верного плеера.',
+                firstAppearance: 'Marvel Preview #4 (Январь 1976)',
+                abilities: [
+                    'Мастерская стрельба из парных стихийных бластеров',
+                    'Реактивные ботинки и боевой шлем для космоса',
+                    'Импровизация, пилотирование и знание галактики',
+                    'Лидерские качества и тактическая хитрость'
+                ],
+                stats: {
+                    strength: 52,
+                    intelligence: 75,
+                    speed: 68,
+                    durability: 60,
+                    combat: 80
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(239,68,68,0.75)]">
+                    <path d="M28 32 Q50 18 72 32 L76 68 Q50 84 24 68 Z" fill="#3F3F46" stroke="#A1A1AA" stroke-width="3"/>
+                    <circle cx="38" cy="48" r="7" fill="#EF4444" stroke="#FCA5A5" stroke-width="2"/>
+                    <circle cx="62" cy="48" r="7" fill="#EF4444" stroke="#FCA5A5" stroke-width="2"/>
+                    <path d="M36 66 L64 66" stroke="#71717A" stroke-width="4" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: 'deadpool',
+                name: 'Дэдпул',
+                realName: 'Уэйд Уинстон Уилсон',
+                team: 'Уличные герои',
+                tags: ['Уличные герои', 'Люди Икс'],
+                gradient: 'from-red-600 via-neutral-950 to-red-900',
+                accentColor: '#ED1D24',
+                shortDesc: 'Болтливый наемник с безудержной регенерацией, парными катанами и полным отсутствием тормозов.',
+                bio: 'Бывший спецназовец Уэйд Уилсон согласился на экспериментальное лечение от рака в программе «Оружие Икс». Эксперимент подарил ему невероятный исцеляющий фактор, сделавший его практически бессмертным, но оставил шрамы и весьма специфическое чувство юмора.',
+                firstAppearance: 'The New Mutants #98 (Февраль 1991)',
+                abilities: [
+                    'Экстремальный исцеляющий фактор и бессмертие',
+                    'Виртуозное владение катанами и огнестрельным оружием',
+                    'Непредсказуемый стиль боя и акробатика',
+                    'Осознание четвертой стены'
+                ],
+                stats: {
+                    strength: 62,
+                    intelligence: 65,
+                    speed: 74,
+                    durability: 96,
+                    combat: 92
+                },
+                svgIcon: `<svg viewBox="0 0 100 100" class="w-24 h-24 drop-shadow-[0_0_15px_rgba(237,29,36,0.85)]">
+                    <circle cx="50" cy="50" r="36" fill="#ED1D24" stroke="#18181B" stroke-width="4"/>
+                    <line x1="50" y1="14" x2="50" y2="86" stroke="#18181B" stroke-width="5"/>
+                    <ellipse cx="34" cy="48" rx="9" ry="13" transform="rotate(-15 34 48)" fill="#18181B"/>
+                    <ellipse cx="66" cy="48" rx="9" ry="13" transform="rotate(15 66 48)" fill="#18181B"/>
+                    <polygon points="30,47 39,49 32,51" fill="#FFFFFF"/>
+                    <polygon points="70,47 61,49 68,51" fill="#FFFFFF"/>
+                </svg>`
+            }
+        ];
+
+        // Состояние фильтрации и поиска
+        let currentTeam = 'all';
+        let currentSearch = '';
+
+        // Ссылки на DOM-элементы
+        const heroesGrid = document.getElementById('heroesGrid');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const emptyState = document.getElementById('emptyState');
+        const desktopCount = document.getElementById('desktopCount');
+        const mobileCount = document.getElementById('mobileCount');
+
+        // Элементы модального окна
+        const heroModal = document.getElementById('heroModal');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const modalContent = document.getElementById('modalContent');
+        const modalBody = document.getElementById('modalBody');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        /**
+         * Отрисовка сетки карточек героев на основе текущих фильтров
+         */
+        function renderHeroes() {
+            const query = currentSearch.trim().toLowerCase();
+
+            const filteredHeroes = HEROES_DATA.filter(hero => {
+                // Проверка фильтра команды
+                const matchesTeam = currentTeam === 'all' || hero.tags.includes(currentTeam);
+                // Проверка поискового запроса по имени, настоящему имени или команде
+                const matchesSearch = !query || 
+                    hero.name.toLowerCase().includes(query) || 
+                    hero.realName.toLowerCase().includes(query) ||
+                    hero.team.toLowerCase().includes(query);
+                
+                return matchesTeam && matchesSearch;
+            });
+
+            // Обновление счетчиков
+            desktopCount.textContent = filteredHeroes.length;
+            mobileCount.textContent = filteredHeroes.length;
+
+            // Показ заглушки, если ничего не найдено
+            if (filteredHeroes.length === 0) {
+                heroesGrid.innerHTML = '';
+                heroesGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            heroesGrid.classList.remove('hidden');
+
+            // Генерация HTML карточек
+            heroesGrid.innerHTML = filteredHeroes.map(hero => `
+                <article 
+                    onclick="openHeroModal('${hero.id}')" 
+                    class="group relative bg-[#13151C] rounded-2xl border border-white/10 hover:border-[#ED1D24]/70 overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_15px_35px_-10px_rgba(237,29,36,0.35)] flex flex-col justify-between"
+                >
+                    <!-- Верхняя часть: Градиентный постер с SVG-эмблемой -->
+                    <div>
+                        <div class="relative h-44 bg-gradient-to-br ${hero.gradient} p-5 flex items-center justify-center overflow-hidden">
+                            <!-- Фоновая сетка в стиле комиксов / тактического радара -->
+                            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 14px 14px;"></div>
+                            
+                            <!-- Бейдж команды -->
+                            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/15 text-[11px] font-semibold uppercase tracking-wider text-gray-200">
+                                ${hero.team}
+                            </span>
+
+                            <!-- SVG Эмблема персонажа -->
+                            <div class="relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                                ${hero.svgIcon}
+                            </div>
+
+                            <!-- Нижний переход градиента в фон карточки -->
+                            <div class="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#13151C] to-transparent"></div>
+                        </div>
+
+                        <!-- Текстовая информация о герое -->
+                        <div class="px-5 pt-2 pb-4">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h2 class="font-display text-2xl font-bold text-white uppercase tracking-wide group-hover:text-[#ED1D24] transition-colors">
+                                        ${hero.name}
+                                    </h2>
+                                    <p class="text-xs font-medium text-[#F5B82E] mt-0.5">
+                                        ${hero.realName}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p class="mt-3 text-xs sm:text-sm text-gray-400 line-clamp-2 leading-relaxed">
+                                ${hero.shortDesc}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Шкала основных характеристик (Сила, Интеллект, Скорость) -->
+                    <div class="px-5 pb-5 pt-3 border-t border-white/5 bg-black/20">
+                        <div class="space-y-2.5">
+                            <!-- Сила -->
+                            <div>
+                                <div class="flex justify-between text-[11px] font-semibold uppercase tracking-wider mb-1">
+                                    <span class="text-gray-400">Сила</span>
+                                    <span class="text-white">${hero.stats.strength}</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-[#ED1D24] to-rose-500 rounded-full" style="width: ${hero.stats.strength}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Интеллект -->
+                            <div>
+                                <div class="flex justify-between text-[11px] font-semibold uppercase tracking-wider mb-1">
+                                    <span class="text-gray-400">Интеллект</span>
+                                    <span class="text-white">${hero.stats.intelligence}</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-[#F5B82E] to-amber-300 rounded-full" style="width: ${hero.stats.intelligence}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Скорость -->
+                            <div>
+                                <div class="flex justify-between text-[11px] font-semibold uppercase tracking-wider mb-1">
+                                    <span class="text-gray-400">Скорость</span>
+                                    <span class="text-white">${hero.stats.speed}</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-sky-500 to-cyan-300 rounded-full" style="width: ${hero.stats.speed}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Кнопка открытия досье -->
+                        <div class="mt-4 flex items-center justify-between text-xs font-semibold text-gray-300 group-hover:text-white transition-colors">
+                            <span>Открыть полное досье</span>
+                            <span class="w-6 h-6 rounded-full bg-white/5 group-hover:bg-[#ED1D24] flex items-center justify-center transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        /**
+         * Открытие модального окна с детальным досье персонажа
+         */
+        function openHeroModal(heroId) {
+            const hero = HEROES_DATA.find(h => h.id === heroId);
+            if (!hero) return;
+
+            // Формирование списка способностей
+            const abilitiesHtml = hero.abilities.map(ability => `
+                <li class="flex items-start gap-2.5 text-sm text-gray-300 bg-white/[0.03] p-3 rounded-xl border border-white/5">
+                    <span class="mt-0.5 text-[#F5B82E] shrink-0">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                    <span>${ability}</span>
+                </li>
+            `).join('');
+
+            // Полные боевые характеристики для анимации
+            const fullStats = [
+                { label: 'Физическая сила', value: hero.stats.strength, color: 'from-[#ED1D24] to-rose-500' },
+                { label: 'Интеллект и тактика', value: hero.stats.intelligence, color: 'from-[#F5B82E] to-amber-300' },
+                { label: 'Скорость и реакция', value: hero.stats.speed, color: 'from-sky-500 to-cyan-300' },
+                { label: 'Стойкость и защита', value: hero.stats.durability, color: 'from-emerald-500 to-teal-300' },
+                { label: 'Боевое мастерство', value: hero.stats.combat, color: 'from-purple-500 to-indigo-400' }
+            ];
+
+            const statsHtml = fullStats.map(stat => `
+                <div>
+                    <div class="flex justify-between text-xs font-semibold uppercase tracking-wider mb-1.5">
+                        <span class="text-gray-300">${stat.label}</span>
+                        <span class="text-[#F5B82E] font-bold">${stat.value} / 100</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-white/10 p-0.5">
+                        <div class="modal-stat-bar h-full bg-gradient-to-r ${stat.color} rounded-full transition-all duration-1000 ease-out" style="width: 0%" data-target="${stat.value}%"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            modalBody.innerHTML = `
+                <!-- Шапка модального окна с градиентом героя -->
+                <div class="relative bg-gradient-to-r ${hero.gradient} p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 border-b border-white/10">
+                    <div class="absolute inset-0 opacity-15" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 16px 16px;"></div>
+                    
+                    <div class="relative z-10 w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0 shadow-2xl">
+                        ${hero.svgIcon}
+                    </div>
+
+                    <div class="relative z-10 text-center sm:text-left">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                            ${hero.tags.map(tag => `
+                                <span class="px-3 py-0.5 rounded-full bg-black/50 border border-white/20 text-xs font-semibold text-white uppercase tracking-wider">
+                                    ${tag}
+                                </span>
+                            `).join('')}
+                        </div>
+                        <h2 id="modalTitle" class="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-wide">
+                            ${hero.name}
+                        </h2>
+                        <p class="text-sm sm:text-base font-medium text-[#F5B82E] mt-1">
+                            Настоящее имя: <span class="text-white">${hero.realName}</span>
+                        </p>
+                        <p class="text-xs text-gray-200/80 mt-2 flex items-center justify-center sm:justify-start gap-1.5">
+                            <svg class="w-4 h-4 text-[#F5B82E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span>Первое появление: <strong>${hero.firstAppearance}</strong></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Основной контент досье -->
+                <div class="p-6 sm:p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                    <!-- Биография -->
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-[#ED1D24] mb-2">Архивная биография</h3>
+                        <p class="text-sm sm:text-base text-gray-300 leading-relaxed">
+                            ${hero.bio}
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <!-- Главные способности -->
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-[#F5B82E] mb-3">Ключевые способности</h3>
+                            <ul class="space-y-2">
+                                ${abilitiesHtml}
+                            </ul>
+                        </div>
+
+                        <!-- Полные боевые характеристики -->
+                        <div class="bg-[#171A24] p-5 rounded-2xl border border-white/10">
+                            <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-sky-400 mb-4">Боевые показатели Щ.И.Т.</h3>
+                            <div class="space-y-3.5">
+                                ${statsHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Плавное открытие модального окна
+            heroModal.classList.remove('hidden');
+            heroModal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+
+            requestAnimationFrame(() => {
+                modalBackdrop.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+
+                // Запуск анимации прогресс-баров с небольшой задержкой
+                setTimeout(() => {
+                    document.querySelectorAll('.modal-stat-bar').forEach(bar => {
+                        bar.style.width = bar.getAttribute('data-target');
+                    });
+                }, 120);
+            });
+        }
+
+        /**
+         * Закрытие модального окна
+         */
+        function closeHeroModal() {
+            modalBackdrop.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                heroModal.classList.add('hidden');
+                heroModal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 250);
+        }
+
+        /**
+         * Открытие случайного героя (интерактивная функция в шапке)
+         */
+        function openRandomHero() {
+            const randomIndex = Math.floor(Math.random() * HEROES_DATA.length);
+            openHeroModal(HEROES_DATA[randomIndex].id);
+        }
+
+        /**
+         * Сброс всех фильтров и поиска
+         */
+        function resetFilters(event) {
+            if (event) event.preventDefault();
+            currentTeam = 'all';
+            currentSearch = '';
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+
+            filterButtons.forEach(btn => {
+                if (btn.dataset.team === 'all') {
+                    btn.className = 'filter-btn active whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#ED1D24] text-white shadow-[0_0_20px_rgba(237,29,36,0.4)] border border-[#ED1D24]';
+                } else {
+                    btn.className = 'filter-btn whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#13151C] text-gray-300 hover:text-white hover:bg-white/10 border border-white/10';
+                }
+            });
+
+            renderHeroes();
+        }
+
+        // Обработчик поиска в реальном времени
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            if (currentSearch.length > 0) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+            renderHeroes();
+        });
+
+        // Кнопка очистки строки поиска
+        clearSearchBtn.addEventListener('click', () => {
+            currentSearch = '';
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            searchInput.focus();
+            renderHeroes();
+        });
+
+        // Обработчики кнопок фильтрации по командам
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentTeam = button.dataset.team;
+
+                // Обновление визуального стиля активной вкладки
+                filterButtons.forEach(btn => {
+                    btn.className = 'filter-btn whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#13151C] text-gray-300 hover:text-white hover:bg-white/10 border border-white/10';
+                });
+                button.className = 'filter-btn active whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-[#ED1D24] text-white shadow-[0_0_20px_rgba(237,29,36,0.4)] border border-[#ED1D24]';
+
+                renderHeroes();
+            });
+        });
+
+        // События закрытия модального окна
+        closeModalBtn.addEventListener('click', closeHeroModal);
+        modalBackdrop.addEventListener('click', closeHeroModal);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !heroModal.classList.contains('hidden')) {
+                closeHeroModal();
+            }
+        });
+
+        // Первичная отрисовка при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            renderHeroes();
+        });
+    </script>
+</body>
+</html>
